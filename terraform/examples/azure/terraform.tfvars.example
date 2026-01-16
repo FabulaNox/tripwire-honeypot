@@ -1,0 +1,53 @@
+# Azure Configuration
+location            = "eastus"
+resource_group_name = "tripwire-honeypot-rg"
+prefix              = "tripwire"
+
+# Create new VNet or use existing
+create_vnet           = true
+vnet_address_space    = "10.0.0.0/16"
+subnet_address_prefix = "10.0.1.0/24"
+# existing_subnet_id  = "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/xxx/subnets/xxx"
+
+# VM Configuration
+vm_size             = "Standard_B1s"
+instance_count      = 2
+admin_username      = "azureuser"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+ssh_allowed_cidrs = ["10.0.0.0/8"]
+
+tags = {
+  Environment = "production"
+  ManagedBy   = "terraform"
+  Project     = "tripwire-honeypot"
+}
+
+# Tripwire Configuration
+decoy_users     = ["admin_john", "admin_jane"]
+real_sudo_group = "svc_mgmt"
+privileged_user = "ops_worker"
+
+inactivity_timeout      = 180
+enable_command_tracking = true
+
+# Wazuh SIEM Integration (optional)
+# Automatically installs and enrolls Wazuh agent if manager IP is provided
+# wazuh_manager_ip            = "10.0.1.100"
+# install_wazuh_agent         = true
+# wazuh_agent_group           = "tripwire"
+
+# Wazuh enrollment - choose one method:
+# Option 1: Registration password (authd)
+# wazuh_registration_password = "your-registration-password"
+
+# Option 2: API credentials
+# wazuh_api_user              = "wazuh-wui"
+# wazuh_api_password          = "your-api-password"
+
+# Password hashes (generate with: mkpasswd -m sha-512)
+# decoy_user_passwords = {
+#   "admin_john" = "$6$rounds=4096$salt$hash..."
+#   "admin_jane" = "$6$rounds=4096$salt$hash..."
+# }
+# privileged_user_password = "$6$rounds=4096$salt$hash..."

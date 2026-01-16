@@ -1,0 +1,43 @@
+# Target hosts to deploy tripwire to
+target_hosts = [
+  {
+    host        = "192.168.1.10"
+    user        = "root"
+    private_key = "~/.ssh/id_rsa"
+    port        = 22
+  },
+  {
+    host        = "192.168.1.11"
+    user        = "root"
+    private_key = "~/.ssh/id_rsa"
+    port        = 22
+  },
+  {
+    host        = "server3.example.com"
+    user        = "admin"
+    private_key = "~/.ssh/admin_key"
+    port        = 2222
+  }
+]
+
+# Tripwire configuration
+decoy_users     = ["admin_john", "admin_jane"]
+real_sudo_group = "svc_mgmt"
+privileged_user = "ops_worker"
+
+inactivity_timeout      = 180
+enable_command_tracking = true
+
+# Wazuh SIEM Integration (optional)
+# Automatically installs and enrolls Wazuh agent if manager IP is provided
+# wazuh_manager_ip            = "10.0.1.100"
+# install_wazuh_agent         = true
+# wazuh_agent_group           = "tripwire"
+
+# Wazuh enrollment - choose one method:
+# Option 1: Registration password (authd)
+# wazuh_registration_password = "your-registration-password"
+
+# Option 2: API credentials
+# wazuh_api_user              = "wazuh-wui"
+# wazuh_api_password          = "your-api-password"

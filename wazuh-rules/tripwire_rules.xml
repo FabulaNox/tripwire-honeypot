@@ -1,0 +1,115 @@
+<!-- Tripwire Honeypot Detection Rules for Wazuh -->
+<!-- Copy to /var/ossec/etc/rules/local_rules.xml or include from there -->
+
+<group name="tripwire,honeypot,">
+
+  <!-- ==================== SESSION TRACKING ==================== -->
+
+  <!-- Decoy session started - informational -->
+  <rule id="100110" level="8">
+    <decoded_as>syslog</decoded_as>
+    <program_name>TRIPWIRE</program_name>
+    <match>SESSION_START</match>
+    <description>Tripwire: Decoy admin account session started - monitoring initiated</description>
+    <group>tripwire,authentication_success,</group>
+    <options>no_full_log</options>
+  </rule>
+
+  <!-- Decoy session ended normally -->
+  <rule id="100111" level="3">
+    <decoded_as>syslog</decoded_as>
+    <program_name>TRIPWIRE</program_name>
+    <match>SESSION_END</match>
+    <description>Tripwire: Decoy admin account session ended</description>
+    <group>tripwire,session,</group>
+  </rule>
+
+  <!-- Legitimate user completed expected su -->
+  <rule id="100112" level="3">
+    <decoded_as>syslog</decoded_as>
+    <program_name>TRIPWIRE</program_name>
+    <match>LEGITIMATE</match>
+    <description>Tripwire: User completed expected privilege switch - normal admin behavior</description>
+    <group>tripwire,authentication_success,</group>
+  </rule>
+
+  <!-- ==================== ALERTS ==================== -->
+
+  <!-- 3 minute timeout without su - HIGH ALERT -->
+  <rule id="100120" level="14">
+    <decoded_as>syslog</decoded_as>
+    <program_name>TRIPWIRE</program_name>
+    <match>INACTIVE_DECOY</match>
+    <description>TRIPWIRE ALERT: Decoy account active without privilege switch - POSSIBLE INTRUSION</description>
+    <group>tripwire,intrusion_detection,pci_dss_10.2.7,pci_dss_10.6.1,</group>
+  </rule>
+
+  <!-- Failed sudo attempt -->
+  <rule id="100121" level="14">
+    <decoded_as>syslog</decoded_as>
+    <program_name>sudo</program_name>
+    <match>authentication failure</match>
+    <description>TRIPWIRE: Failed sudo authentication - possible attacker testing decoy</description>
+    <group>tripwire,authentication_failed,</group>
+  </rule>
+
+  <!-- User not in sudoers - CRITICAL -->
+  <rule id="100122" level="15">
+    <decoded_as>syslog</decoded_as>
+    <match>NOT in sudoers</match>
+    <description>TRIPWIRE CRITICAL: Sudo attempt from user not in sudoers - ATTACKER DETECTED</description>
+    <group>tripwire,intrusion_detection,pci_dss_10.2.7,</group>
+  </rule>
+
+  <!-- ==================== COMMAND TRACKING (AUDITD) ==================== -->
+
+  <!-- Command execution from decoy user -->
+  <rule id="100130" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tripwire_cmd</field>
+    <description>Tripwire: Command executed by decoy user: $(audit.exe)</description>
+    <group>tripwire,command_tracking,audit,</group>
+  </rule>
+
+  <!-- Sudo attempt tracked by audit -->
+  <rule id="100131" level="13">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tripwire_sudo</field>
+    <description>TRIPWIRE: Sudo command attempted - tracked via audit</description>
+    <group>tripwire,privilege_escalation,audit,</group>
+  </rule>
+
+  <!-- Su attempt tracked by audit -->
+  <rule id="100132" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tripwire_su</field>
+    <description>Tripwire: Su command executed - tracked via audit</description>
+    <group>tripwire,command_tracking,audit,</group>
+  </rule>
+
+  <!-- Privilege escalation syscall -->
+  <rule id="100133" level="14">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tripwire_privesc</field>
+    <description>TRIPWIRE: Privilege escalation syscall detected</description>
+    <group>tripwire,privilege_escalation,audit,</group>
+  </rule>
+
+  <!-- ==================== CORRELATION RULES ==================== -->
+
+  <!-- Multiple failed sudo attempts -->
+  <rule id="100140" level="15" frequency="3" timeframe="120">
+    <if_matched_sid>100121</if_matched_sid>
+    <description>TRIPWIRE CRITICAL: Multiple failed sudo attempts - active attack in progress</description>
+    <group>tripwire,intrusion_detection,</group>
+  </rule>
+
+  <!-- Session with suspicious command patterns -->
+  <rule id="100141" level="14">
+    <if_sid>100130</if_sid>
+    <match>wget|curl|nc|ncat|bash -i|python -c|perl -e|/dev/tcp|/dev/udp</match>
+    <description>TRIPWIRE CRITICAL: Suspicious command from decoy user - possible reverse shell</description>
+    <group>tripwire,intrusion_detection,malware,</group>
+  </rule>
+
+</group>

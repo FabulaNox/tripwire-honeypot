@@ -1,0 +1,60 @@
+# GCP Configuration
+project_id = "my-gcp-project-id"
+region     = "us-central1"
+zone       = "us-central1-a"
+prefix     = "tripwire"
+
+# Create new VPC or use existing
+create_vpc  = true
+subnet_cidr = "10.0.1.0/24"
+# existing_network    = "default"
+# existing_subnetwork = "default"
+
+# Instance Configuration
+machine_type   = "e2-micro"
+instance_count = 2
+image          = "ubuntu-os-cloud/ubuntu-2204-lts"
+disk_size_gb   = 20
+
+ssh_user            = "ubuntu"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+ssh_allowed_cidrs   = ["10.0.0.0/8"]
+
+# Service Account
+create_service_account = true
+# existing_service_account_email = "my-sa@my-project.iam.gserviceaccount.com"
+
+labels = {
+  environment = "production"
+  managed-by  = "terraform"
+  project     = "tripwire-honeypot"
+}
+
+# Tripwire Configuration
+decoy_users     = ["admin_john", "admin_jane"]
+real_sudo_group = "svc_mgmt"
+privileged_user = "ops_worker"
+
+inactivity_timeout      = 180
+enable_command_tracking = true
+
+# Wazuh SIEM Integration (optional)
+# Automatically installs and enrolls Wazuh agent if manager IP is provided
+# wazuh_manager_ip            = "10.0.1.100"
+# install_wazuh_agent         = true
+# wazuh_agent_group           = "tripwire"
+
+# Wazuh enrollment - choose one method:
+# Option 1: Registration password (authd)
+# wazuh_registration_password = "your-registration-password"
+
+# Option 2: API credentials
+# wazuh_api_user              = "wazuh-wui"
+# wazuh_api_password          = "your-api-password"
+
+# Password hashes (generate with: mkpasswd -m sha-512)
+# decoy_user_passwords = {
+#   "admin_john" = "$6$rounds=4096$salt$hash..."
+#   "admin_jane" = "$6$rounds=4096$salt$hash..."
+# }
+# privileged_user_password = "$6$rounds=4096$salt$hash..."

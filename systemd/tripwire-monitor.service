@@ -1,0 +1,24 @@
+[Unit]
+Description=Tripwire Honeypot Session Monitor
+Documentation=https://github.com/your-org/tripwire-honeypot
+After=network.target auditd.service
+Wants=auditd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tripwire_monitor.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tripwire-monitor
+
+# Security hardening
+NoNewPrivileges=false
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/var/run/tripwire_sessions
+
+[Install]
+WantedBy=multi-user.target
