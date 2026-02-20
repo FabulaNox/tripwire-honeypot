@@ -72,3 +72,4 @@ venv/
 # Documentation builds
 docs/_build/
 docs/wizard-screenshot.png
+.gitlab-ci.yml
