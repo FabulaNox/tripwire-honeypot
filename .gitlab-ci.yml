@@ -8,6 +8,9 @@ mirror-to-github:
   variables:
     GIT_STRATEGY: none
   script:
+    - apk add --no-cache python3
+    - wget -q https://raw.githubusercontent.com/newren/git-filter-repo/main/git-filter-repo -O /usr/local/bin/git-filter-repo
+    - chmod +x /usr/local/bin/git-filter-repo
     - rm -rf repo
     - git clone --mirror "http://gitlab:80/${CI_PROJECT_PATH}.git" repo
     - cd repo
