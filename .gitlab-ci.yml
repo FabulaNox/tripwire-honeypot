@@ -7,14 +7,13 @@ mirror-to-github:
   when: manual
   variables:
     GIT_STRATEGY: none
-  before_script:
-    - apk add --no-cache openssh-client
   script:
-    - git config --global user.email "ci@gitlab.local"
-    - git config --global user.name "GitLab Mirror Bot"
-    - git remote add github "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git" || git remote set-url github "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git"
-    - git push github --mirror
-    - echo "Mirrored ${CI_PROJECT_NAME} to GitHub successfully."
+    - git clone --mirror "http://gitlab:80/${CI_PROJECT_PATH}.git" repo
+    - cd repo
+    - git push --force
+        "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git"
+        'refs/heads/*:refs/heads/*'
+        'refs/tags/*:refs/tags/*'
   only:
     - branches
     - tags
