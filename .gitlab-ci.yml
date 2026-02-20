@@ -1,0 +1,21 @@
+stages:
+  - mirror
+
+mirror-to-github:
+  stage: mirror
+  image: alpine/git:latest
+  when: manual
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - rm -rf repo
+    - git clone --mirror "http://gitlab:80/${CI_PROJECT_PATH}.git" repo
+    - cd repo
+    - git filter-repo --path .gitlab-ci.yml --invert-paths --force
+    - git push --force
+        "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git"
+        'refs/heads/*:refs/heads/*'
+        'refs/tags/*:refs/tags/*'
+  only:
+    - branches
+    - tags
