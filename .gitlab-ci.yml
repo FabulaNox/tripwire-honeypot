@@ -6,19 +6,12 @@ mirror-to-github:
   when: manual
   variables:
     GIT_STRATEGY: none
-  before_script:
-    - sudo apt-get install -y python3 2>/dev/null || true
-    - wget -q https://raw.githubusercontent.com/newren/git-filter-repo/main/git-filter-repo -O ~/git-filter-repo
-    - chmod +x ~/git-filter-repo
   script:
     - rm -rf repo
-    - git clone --mirror "http://gitlab:80/${CI_PROJECT_PATH}.git" repo
+    - git clone "http://gitlab:80/${CI_PROJECT_PATH}.git" repo
     - cd repo
-    - ~/git-filter-repo --path .gitlab-ci.yml --invert-paths --force
-    - git push --force
-        "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git"
-        'refs/heads/*:refs/heads/*'
-        'refs/tags/*:refs/tags/*'
+    - git remote add github "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CI_PROJECT_NAME}.git"
+    - git push --force github main
   only:
     - branches
     - tags
