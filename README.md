@@ -387,26 +387,26 @@ Attacker Perspective (what they expect vs reality):
 
 ```
                     ┌─────────────────────────────────────────────────┐
-                    │           DETECTION TIMELINE                     │
+                    │           DETECTION TIMELINE                    │
                     ├─────────────────────────────────────────────────┤
-   T=0              │  Session Start                                   │
+   T=0              │  Session Start                                  │
    (Login)          │  └─ PAM hook fires, tracking begins             │
                     │  └─ Wazuh Rule 100110 (Level 8)                 │
-                    │                                                  │
+                    │                                                 │
    T=0 to T=180s    │  Command Execution Window                       │
                     │  └─ All commands logged via auditd              │
                     │  └─ Wazuh Rule 100130 (Level 10)                │
                     │  └─ Suspicious patterns → Rule 100141 (Level 14)│
-                    │                                                  │
-   T=anytime        │  Sudo Attempt                                    │
+                    │                                                 │
+   T=anytime        │  Sudo Attempt                                   │
                     │  └─ Immediate failure (not in real sudoers)     │
                     │  └─ Wazuh Rule 100122 (Level 15) - CRITICAL     │
-                    │                                                  │
-   T=180s           │  Inactivity Timeout                              │
+                    │                                                 │
+   T=180s           │  Inactivity Timeout                             │
    (3 minutes)      │  └─ No su to privileged user detected           │
                     │  └─ Wazuh Rule 100120 (Level 14) - HIGH         │
-                    │                                                  │
-   T=any            │  Legitimate Admin                                │
+                    │                                                 │
+   T=any            │  Legitimate Admin                               │
                     │  └─ Completes su within timeout                 │
                     │  └─ Wazuh Rule 100112 (Level 3) - INFO          │
                     │  └─ Tracking file removed, no alert             │
